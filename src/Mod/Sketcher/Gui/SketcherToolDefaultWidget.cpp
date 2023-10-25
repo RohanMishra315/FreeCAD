@@ -25,6 +25,10 @@
 
 #ifndef _PreComp_
 #include <Inventor/events/SoKeyboardEvent.h>
+#include <QApplication>
+#include <QEvent>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #endif
 
 #include "ui_SketcherToolDefaultWidget.h"
@@ -40,7 +44,6 @@
 #include <Base/UnitsApi.h>
 #include <Base/Exception.h>
 
-#include <QEvent>
 
 #include "ViewProviderSketch.h"
 
@@ -90,22 +93,20 @@ bool SketcherToolDefaultWidget::KeyboardManager::handleKeyEvent(QKeyEvent* keyEv
     if (vpViewer && isMode(KeyboardEventHandlingMode::ViewProvider)) {
         return QApplication::sendEvent(vpViewer, keyEvent);
     }
-    else {
-        return false;  // do not intercept the event and feed it to the widget
-    }
+
+    return false;  // do not intercept the event and feed it to the widget
 }
 
 void SketcherToolDefaultWidget::KeyboardManager::detectKeyboardEventHandlingMode(
     QKeyEvent* keyEvent)
 {
-    Q_UNUSED(keyEvent);
-
+    QRegularExpression rx(QStringLiteral("^[0-9]$"));
+    auto match = rx.match(keyEvent->text());
     if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return
         || keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab
         || keyEvent->key() == Qt::Key_Backspace || keyEvent->key() == Qt::Key_Delete
         || keyEvent->key() == Qt::Key_Minus || keyEvent->key() == Qt::Key_Period
-        || keyEvent->key() == Qt::Key_Comma
-        || QRegExp(QStringLiteral("[0-9]")).exactMatch(keyEvent->text())) {
+        || keyEvent->key() == Qt::Key_Comma || match.hasMatch()) {
         keyMode = KeyboardEventHandlingMode::Widget;
         timer.start(timeOut);
     }
@@ -116,72 +117,15 @@ void SketcherToolDefaultWidget::KeyboardManager::onTimeOut()
     keyMode = KeyboardEventHandlingMode::ViewProvider;
 }
 
-SketcherToolDefaultWidget::SketcherToolDefaultWidget(QWidget* parent,
-                                                     ViewProviderSketch* sketchView)
+SketcherToolDefaultWidget::SketcherToolDefaultWidget(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui_SketcherToolDefaultWidget)
-    , sketchView(sketchView)
     , blockParameterSlots(false)
 {
     ui->setupUi(this);
 
     // connecting the needed signals
-    connect(ui->parameterOne,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterOne_valueChanged(double)));
-    connect(ui->parameterTwo,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterTwo_valueChanged(double)));
-    connect(ui->parameterThree,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterThree_valueChanged(double)));
-    connect(ui->parameterFour,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterFour_valueChanged(double)));
-    connect(ui->parameterFive,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterFive_valueChanged(double)));
-    connect(ui->parameterSix,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterSix_valueChanged(double)));
-    connect(ui->parameterSeven,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterSeven_valueChanged(double)));
-    connect(ui->parameterEight,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterEight_valueChanged(double)));
-    connect(ui->parameterNine,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterNine_valueChanged(double)));
-    connect(ui->parameterTen,
-            SIGNAL(valueChanged(double)),
-            this,
-            SLOT(parameterTen_valueChanged(double)));
-    connect(ui->checkBoxTS1, SIGNAL(toggled(bool)), this, SLOT(checkBoxTS1_toggled(bool)));
-    connect(ui->checkBoxTS2, SIGNAL(toggled(bool)), this, SLOT(checkBoxTS2_toggled(bool)));
-    connect(ui->checkBoxTS3, SIGNAL(toggled(bool)), this, SLOT(checkBoxTS3_toggled(bool)));
-    connect(ui->checkBoxTS4, SIGNAL(toggled(bool)), this, SLOT(checkBoxTS4_toggled(bool)));
-    connect(ui->comboBox1,
-            SIGNAL(currentIndexChanged(int)),
-            this,
-            SLOT(comboBox1_currentIndexChanged(int)));
-    connect(ui->comboBox2,
-            SIGNAL(currentIndexChanged(int)),
-            this,
-            SLOT(comboBox2_currentIndexChanged(int)));
-    connect(ui->comboBox3,
-            SIGNAL(currentIndexChanged(int)),
-            this,
-            SLOT(comboBox3_currentIndexChanged(int)));
+    setupConnections();
 
     ui->parameterOne->installEventFilter(this);
     ui->parameterTwo->installEventFilter(this);
@@ -193,8 +137,79 @@ SketcherToolDefaultWidget::SketcherToolDefaultWidget(QWidget* parent,
     reset();
 }
 
-SketcherToolDefaultWidget::~SketcherToolDefaultWidget()
-{}
+SketcherToolDefaultWidget::~SketcherToolDefaultWidget() = default;
+
+void SketcherToolDefaultWidget::setupConnections()
+{
+    connect(ui->parameterOne,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterOne_valueChanged);
+    connect(ui->parameterTwo,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterTwo_valueChanged);
+    connect(ui->parameterThree,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterThree_valueChanged);
+    connect(ui->parameterFour,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterFour_valueChanged);
+    connect(ui->parameterFive,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterFive_valueChanged);
+    connect(ui->parameterSix,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterSix_valueChanged);
+    connect(ui->parameterSeven,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterSeven_valueChanged);
+    connect(ui->parameterEight,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterEight_valueChanged);
+    connect(ui->parameterNine,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterNine_valueChanged);
+    connect(ui->parameterTen,
+            qOverload<double>(&Gui::QuantitySpinBox::valueChanged),
+            this,
+            &SketcherToolDefaultWidget::parameterTen_valueChanged);
+    connect(ui->checkBoxTS1,
+            &QCheckBox::toggled,
+            this,
+            &SketcherToolDefaultWidget::checkBoxTS1_toggled);
+    connect(ui->checkBoxTS2,
+            &QCheckBox::toggled,
+            this,
+            &SketcherToolDefaultWidget::checkBoxTS2_toggled);
+    connect(ui->checkBoxTS3,
+            &QCheckBox::toggled,
+            this,
+            &SketcherToolDefaultWidget::checkBoxTS3_toggled);
+    connect(ui->checkBoxTS4,
+            &QCheckBox::toggled,
+            this,
+            &SketcherToolDefaultWidget::checkBoxTS4_toggled);
+    connect(ui->comboBox1,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            this,
+            &SketcherToolDefaultWidget::comboBox1_currentIndexChanged);
+    connect(ui->comboBox2,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            this,
+            &SketcherToolDefaultWidget::comboBox2_currentIndexChanged);
+    connect(ui->comboBox3,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            this,
+            &SketcherToolDefaultWidget::comboBox3_currentIndexChanged);
+}
 
 // pre-select the number of the spinbox when it gets the focus.
 bool SketcherToolDefaultWidget::eventFilter(QObject* object, QEvent* event)
@@ -215,7 +230,7 @@ bool SketcherToolDefaultWidget::eventFilter(QObject* object, QEvent* event)
         doesn't keep the keypress event for itself. Note if you want the event to be handled by
         the spinbox too, you can return false.*/
 
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        auto keyEvent = static_cast<QKeyEvent*>(event);
 
         return keymanager.handleKeyEvent(keyEvent);
     }
@@ -231,7 +246,7 @@ void SketcherToolDefaultWidget::reset()
 
     for (int i = 0; i < nParameters; i++) {
         setParameterVisible(i, false);
-        setParameter(i, 0.f);
+        setParameter(i, 0.F);
     }
 
     for (int i = 0; i < nCheckbox; i++) {
@@ -353,8 +368,8 @@ void SketcherToolDefaultWidget::initNParameters(int nparameters)
     std::fill(isSet.begin(), isSet.end(), false);
 
     for (int i = 0; i < nParameters; i++) {
-        setParameterVisible(i, (i < nparameters) ? true : false);
-        setParameter(i, 0.f);
+        setParameterVisible(i, (i < nparameters));
+        setParameter(i, 0.F);
         setParameterFontStyle(i, FontStyle::Italic);
     }
 
@@ -379,7 +394,7 @@ void SketcherToolDefaultWidget::setParameterLabel(int parameterindex, const QStr
 void SketcherToolDefaultWidget::setParameter(int parameterindex, double val)
 {
     if (parameterindex < nParameters) {
-        getParameterSpinBox(parameterindex)->setValue(Base::Quantity(val, Base::Unit::Length));
+        getParameterSpinBox(parameterindex)->setValue(val);
 
         return;
     }
@@ -394,13 +409,52 @@ void SketcherToolDefaultWidget::configureParameterInitialValue(int parameterinde
     setParameter(parameterindex, val);
 }
 
-void SketcherToolDefaultWidget::configureParameterUnit(int parameterindex, Base::Unit unit)
+void SketcherToolDefaultWidget::configureParameterUnit(int parameterindex, const Base::Unit& unit)
 {
     // For reference unit can be changed with :
     // setUnit(Base::Unit::Length); Base::Unit::Angle
     Base::StateLocker lock(blockParameterSlots, true);
     if (parameterindex < nParameters) {
         getParameterSpinBox(parameterindex)->setUnit(unit);
+
+        return;
+    }
+
+    THROWM(Base::IndexError,
+           QT_TRANSLATE_NOOP("Exceptions", "ToolWidget parameter index out of range"));
+}
+
+void SketcherToolDefaultWidget::configureParameterDecimals(int parameterindex, int val)
+{
+    Base::StateLocker lock(blockParameterSlots, true);
+    if (parameterindex < nParameters) {
+        getParameterSpinBox(parameterindex)->setDecimals(val);
+
+        return;
+    }
+
+    THROWM(Base::IndexError,
+           QT_TRANSLATE_NOOP("Exceptions", "ToolWidget parameter index out of range"));
+}
+
+void SketcherToolDefaultWidget::configureParameterMin(int parameterindex, double val)
+{
+    Base::StateLocker lock(blockParameterSlots, true);
+    if (parameterindex < nParameters) {
+        getParameterSpinBox(parameterindex)->setMinimum(val);
+
+        return;
+    }
+
+    THROWM(Base::IndexError,
+           QT_TRANSLATE_NOOP("Exceptions", "ToolWidget parameter index out of range"));
+}
+
+void SketcherToolDefaultWidget::configureParameterMax(int parameterindex, double val)
+{
+    Base::StateLocker lock(blockParameterSlots, true);
+    if (parameterindex < nParameters) {
+        getParameterSpinBox(parameterindex)->setMaximum(val);
 
         return;
     }
@@ -556,7 +610,9 @@ bool SketcherToolDefaultWidget::isParameterSet(int parameterindex)
     THROWM(Base::IndexError, "ToolWidget parameter index out of range");
 }
 
-void SketcherToolDefaultWidget::updateVisualValue(int parameterindex, double val, Base::Unit unit)
+void SketcherToolDefaultWidget::updateVisualValue(int parameterindex,
+                                                  double val,
+                                                  const Base::Unit& unit)
 {
     if (parameterindex < nParameters) {
         Base::StateLocker lock(blockParameterSlots, true);
@@ -619,7 +675,7 @@ void SketcherToolDefaultWidget::initNCheckboxes(int ncheckbox)
     Base::StateLocker lock(blockParameterSlots, true);
 
     for (int i = 0; i < nCheckbox; i++) {
-        setCheckboxVisible(i, (i < ncheckbox) ? true : false);
+        setCheckboxVisible(i, (i < ncheckbox));
         setCheckboxChecked(i, false);
     }
 }
@@ -697,6 +753,20 @@ void SketcherToolDefaultWidget::restoreCheckBoxPref(int checkboxindex)
     }
 }
 
+void SketcherToolDefaultWidget::setCheckboxIcon(int checkboxindex, QIcon icon)
+{
+    if (checkboxindex < nCheckbox) {
+        getCheckBox(checkboxindex)->setIcon(icon);
+    }
+}
+
+void SketcherToolDefaultWidget::setComboboxItemIcon(int comboboxindex, int index, QIcon icon)
+{
+    if (comboboxindex < nCombobox) {
+        getComboBox(comboboxindex)->setItemIcon(index, icon);
+    }
+}
+
 void SketcherToolDefaultWidget::setComboboxPrefEntry(int comboboxindex,
                                                      const std::string& prefEntry)
 {
@@ -746,7 +816,7 @@ void SketcherToolDefaultWidget::initNComboboxes(int ncombobox)
     Base::StateLocker lock(blockParameterSlots, true);
 
     for (int i = 0; i < nCombobox; i++) {
-        setComboboxVisible(i, (i < ncombobox) ? true : false);
+        setComboboxVisible(i, (i < ncombobox));
     }
 }
 
@@ -823,10 +893,10 @@ int SketcherToolDefaultWidget::getComboboxIndex(int comboboxindex)
 }
 
 
-void SketcherToolDefaultWidget::changeEvent(QEvent* e)
+void SketcherToolDefaultWidget::changeEvent(QEvent* ev)
 {
-    QWidget::changeEvent(e);
-    if (e->type() == QEvent::LanguageChange) {
+    QWidget::changeEvent(ev);
+    if (ev->type() == QEvent::LanguageChange) {
         ui->retranslateUi(this);
     }
 }

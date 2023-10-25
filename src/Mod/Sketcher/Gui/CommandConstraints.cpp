@@ -8744,8 +8744,6 @@ void CmdSketcherConstrainAngle::activated(int iMsg)
     }
     else if (SubNames.size() < 3) {
 
-        bool bothexternal = areBothPointsOrSegmentsFixed(Obj, GeoId1, GeoId2);
-
         if (isVertex(GeoId1, PosId1) && isEdge(GeoId2, PosId2)) {
             std::swap(GeoId1, GeoId2);
             std::swap(PosId1, PosId2);

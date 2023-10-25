@@ -3356,7 +3356,7 @@ StdCmdSelBack::StdCmdSelBack()
   :Command("Std_SelBack")
 {
   sGroup        = "View";
-  sMenuText     = QT_TR_NOOP("Selection Back");
+  sMenuText     = QT_TR_NOOP("Selection back");
   static std::string toolTip = std::string("<p>")
       + QT_TR_NOOP("Restore the previous Tree view selection. "
       "Only works if Tree RecordSelection mode is switched on.")
@@ -3390,7 +3390,7 @@ StdCmdSelForward::StdCmdSelForward()
   :Command("Std_SelForward")
 {
   sGroup        = "View";
-  sMenuText     = QT_TR_NOOP("Selection Forward");
+  sMenuText     = QT_TR_NOOP("Selection forward");
   static std::string toolTip = std::string("<p>")
       + QT_TR_NOOP("Restore the next Tree view selection. "
       "Only works if Tree RecordSelection mode is switched on.")
@@ -3752,8 +3752,8 @@ StdCmdDockOverlayTransparentAll::StdCmdDockOverlayTransparentAll()
 {
   sGroup        = "View";
   sMenuText     = QT_TR_NOOP("Toggle transparent for all");
-  sToolTipText  = QT_TR_NOOP("Toggle transparent for all overlay docked window.\n"
-                             "This makes the docked widget stay transparent at all times.");
+  sToolTipText  = QT_TR_NOOP("Toggle transparent mode for all docked overlay windows.\n"
+                             "This makes the docked windows stay transparent at all times.");
   sWhatsThis    = "Std_DockOverlayTransparentAll";
   sStatusTip    = sToolTipText;
   sAccel        = "SHIFT+F4";
@@ -3777,7 +3777,7 @@ StdCmdDockOverlayToggle::StdCmdDockOverlayToggle()
 {
   sGroup        = "View";
   sMenuText     = QT_TR_NOOP("Toggle overlay");
-  sToolTipText  = QT_TR_NOOP("Toggle overlay mode of the docked window under cursor");
+  sToolTipText  = QT_TR_NOOP("Toggle overlay mode for the docked window under the cursor");
   sWhatsThis    = "Std_DockOverlayToggle";
   sStatusTip    = sToolTipText;
   sAccel        = "F3";
@@ -3801,8 +3801,8 @@ StdCmdDockOverlayToggleTransparent::StdCmdDockOverlayToggleTransparent()
 {
     sGroup        = "Standard-View";
     sMenuText     = QT_TR_NOOP("Toggle transparent");
-    sToolTipText  = QT_TR_NOOP("Toggle transparent mode for the docked widget under cursor.\n"
-                               "This makes the docked widget stay transparent at all times.");
+    sToolTipText  = QT_TR_NOOP("Toggle transparent mode for the docked window under cursor.\n"
+                               "This makes the docked window stay transparent at all times.");
     sWhatsThis    = "Std_DockOverlayToggleTransparent";
     sStatusTip    = sToolTipText;
     sAccel        = "SHIFT+F3";
@@ -3925,8 +3925,8 @@ StdCmdDockOverlayMouseTransparent::StdCmdDockOverlayMouseTransparent()
   :Command("Std_DockOverlayMouseTransparent")
 {
   sGroup        = "View";
-  sMenuText     = QT_TR_NOOP("Bypass mouse events in dock overlay");
-  sToolTipText  = QT_TR_NOOP("Bypass all mouse events in dock overlay");
+  sMenuText     = QT_TR_NOOP("Bypass mouse events in docked overlay windows");
+  sToolTipText  = QT_TR_NOOP("Bypass all mouse events in docked overlay windows");
   sWhatsThis    = "Std_DockOverlayMouseTransparent";
   sStatusTip    = sToolTipText;
   sAccel        = "T, T";
